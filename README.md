@@ -1,5 +1,5 @@
 # ZipZop
-Zipzop is a **lossless** data compressor for text and images. To prepare the file, it builds the suffix array in O(n) then applies the Burrows-Wheeler Transform followed by the MTF. Furthermore, it uses Huffman coding to encode the data. When applied to the ```input.txt``` file (which is 71 kB), Zipzop achieves a **2.8:1** compression rate and **64% space saving**, all in **under 14 milliseconds** of compression runtime (the decompression step can get as fast as 4ms). It is inspired by bzip2, which is a legacy lossless compressor found in Unix systems.
+Zipzop is a **lossless** data compressor for text and images. To prepare the file, it builds the suffix array in O(n) then applies the Burrows-Wheeler Transform followed by the MTF. Furthermore, it uses Huffman coding to encode the data. When applied to the ```input.txt``` file (which is 71 kB), Zipzop achieves a **2.8:1** compression ratio and **64% space saving**, all in **under 14 milliseconds** of compression runtime (the decompression step can get as fast as 4ms). It is inspired by bzip2, which is a legacy lossless compressor found in Unix systems.
 
 ![compressor](imgs/roadroller.png)
 
@@ -56,7 +56,7 @@ Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by t
 
 Nice TODO:
 -----
-* Suffix Array construction with Induced Sorting (SA-IS) *might* be faster in practice (not sure)
+* Suffix Array construction with Induced Sorting (SA-IS) *might* be faster in practice
 
 Refs:
 -----
