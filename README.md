@@ -47,12 +47,12 @@ Up to this point, we haven't done any compression yet. The BWT and MTF are just 
 
 Results
 -----
-The ```input.txt``` file is a well-thought and curated text file designed to test compression (jk, it's actually just the entire movie script of Shrek). For actual testing we generated txt files of sizes 1e2, 1e3, 1e4 and 1e5 filled them with random sentences (check ```make_input.py``` for how), then we analysed the compression ratio and space saving as the size increases. Figures below.
+The ```input.txt``` file is a well-thought and curated text file designed to test compression (jk, it's actually just the entire movie script of Shrek). For actual testing we generated txt files of sizes 1e2, 1e3, 1e4, 1e5 and filled them with random sentences (check ```make_input.py``` for how), then we analysed the compression ratio and space saving as the size increases. Figures below.
 
 ![ratio_size](imgs/ratiopersize.png)
 ![space_size](imgs/spacepersize.png)
 
-Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by the concatenation of 10x ```test_1e5.txt```(which is a list of 100 thousand random sentences). By the nature of its construction, it's a large txt file with a lot of repetitions - perfect for compression. That's why Zipzop compresses it with a 6.7:1 ratio and 85% space saving. This shows the power of compression when applied to a big file with a lot of repetitions.
+Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by the concatenation of 10x ```test_1e5.txt```(which is a list of 100 thousand random sentences). By the nature of its construction, it's a large txt file with a lot of repetitions - perfect for compression. That's why Zipzop compresses it with a 6.7:1 ratio and **85% space saving**. This shows the power of compression when applied to a big file with a lot of repetitions.
 
 Nice TODO:
 -----
