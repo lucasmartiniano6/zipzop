@@ -22,7 +22,9 @@ Yay! Your original file is now in out.txt.
 Suffix Array construction in O(n) with Skew algorithm:
 -----
 Step 1) Build suffix array for all i where imod3 != 0. This is done by recursively calling the algorithm for a string of 2/3 the length of the original one.
+
 Step 2) Build suffix array for all i where imod3 = 0. This is done in linear time by creating pairs of type (S[i], rank[i+1]) and then applying radix sort (obs: S[i] is the i-th character of the original string S). The rank array is obtained from the first step, and tells us the relative order of the suffixes. Note that here since imod3=0, the suffix (i+1) lies in the rule defined by the first step, so we already have its suffix and rank arrays. This step is done in O(N).
+
 Step 3) Merge the two suffix arrays from the previous steps, also done in O(N). Essentially, we want to compare a suffix i (where imod3=0) with another suffix j (where jmod3!=0), let's separate it in two cases:
 * Case I)  If jmod3=1 : Create pairs of type (S[i], rank[i+1]) and (S[j], rank[j+1]). Note that both suffixes (i+1) and (j+1) lie in the same suffix array (where idx mod3 !=0, created in the first step), so we can compare their ranks directly. Then, we order these pairs in O(N) with radix sort.
 * Case II) If jmod3=2 : Create triples of type (S[i], S[i+1], rank(i+2)) and (S[j], S[j+1], rank[j+2]). Note that both suffixes (i+2) and (j+2) lie in the same suffix array (where idx mod3!=0, created in the first step), so we can compare their ranks directly. Then, we order these pairs in O(N) with radix sort.
