@@ -5,7 +5,7 @@
 
 // Burrows–Wheeler Transform
 std::string BWT(std::vector<int>& t, std::vector<int>& sa){
-    char sentinel = (char)35; // '#'
+    const char sentinel = '#';
     std::string ans = "";
     for(int i=0; i<sa.size(); i++){ 
         if(sa[i]==0) ans += sentinel;
@@ -16,12 +16,12 @@ std::string BWT(std::vector<int>& t, std::vector<int>& sa){
 
 std::vector<int> common_dict(){
     std::vector<int> d(256);
-    auto block32 = [](auto& v, auto a, auto b){for(int i=a;i<b;i++) v[i]=i;};
-    block32(d, 0, 32);
-    block32(d, 32, 64);
-    block32(d, 64, 96);
-    block32(d, 96, 128);
-    block32(d, 128, 256);
+    auto block32 = [](auto& v, auto a, auto b, auto off){for(int i=a;i<b;i++) v[i]=i-a+off;};
+    block32(d, 0, 32, 96);
+    block32(d, 32, 64, 64);
+    block32(d, 64, 96, 32);
+    block32(d, 96, 128, 0);
+    block32(d, 128, 256, 128);
     return d;
 }
 
@@ -31,7 +31,7 @@ std::vector<int> MTF(std::string& s){
     std::vector<int> ans;
     for(char c : s){
         // find rank
-        int rank;
+        short int rank;
         for(int j=0; j<dict.size(); j++) if(dict[j]==(uint8_t)c) rank=j;
         ans.push_back(rank);
         // update dict
@@ -65,7 +65,7 @@ struct Node{
 std::vector<std::string> table_code; // code
 std::vector<Node> tree;
 std::string tree_comp_form;
-int root, sentinel = 255, alphabet = 256;
+const int sentinel = 255, alphabet = 256;
 
 void dfs(int v, std::string curr){
     if(v == -1) return;
@@ -104,9 +104,8 @@ void build(std::vector<int>& v){
         pq.push(pai);
         tree.push_back(pai);
     }
-    root = pq.top().idx; pq.pop();
-    if(tree.size() > 1) dfs(root, "");
-    else dfs(root, "0");
+    if(tree.size() > 1) dfs(pq.top().idx, "");
+    else dfs(pq.top().idx, "0");
 }
 
 std::string compress(std::vector<int>& v){
@@ -134,35 +133,43 @@ void write_file(std::string& s, std::string fileName){
     fout.close();
 }
 
-int main(){
+int main(int argc, char* argv[]){
     using std::chrono::high_resolution_clock;
-    using std::chrono::duration_cast;
     using std::chrono::duration;
     using std::chrono::milliseconds;
-    std::cout << "Compressing file...\n"; 
+    if(argc < 2){
+        std::cout << "Please provide an input file.\n";
+        return 0;
+    }
+    std::cout << "Zipzoping file...\n"; 
     Skew sa;
-    sa.string_from_file("input.txt");
+    sa.string_from_file(argv[1]);
 
+    duration<double, std::milli> total;
     auto t1 = high_resolution_clock::now();
     sa.build();
     auto out_bwt = BWT(*sa.string, *sa.suffixArray);
     auto t2 = high_resolution_clock::now();
     duration<double, std::milli> ms_double = t2 - t1;
-    std::cout << "SA build + BWT: " << ms_double.count() << "ms\n";
+    total += ms_double;
+    // std::cout << "SA build + BWT: " << ms_double.count() << "ms\n";
 
     t1 = high_resolution_clock::now();
     auto out_mtf = MTF(out_bwt);
     t2 = high_resolution_clock::now();
     ms_double = t2 - t1;
-    std::cout << "MTF: " << ms_double.count() << "ms\n";
+    total += ms_double;
+    // std::cout << "MTF: " << ms_double.count() << "ms\n";
 
     t1 = high_resolution_clock::now();
     Huffman hf;
     auto out_hf = hf.compress(out_mtf);
     t2 = high_resolution_clock::now();
     ms_double = t2 - t1;
-    std::cout << "Huffman: " << ms_double.count() << "ms\n";
+    total += ms_double;
+    // std::cout << "Huffman: " << ms_double.count() << "ms\n";
 
-    write_file(out_hf, "output_comp.txt");
+    write_file(out_hf, "out.compressed");
+    std::cout << "Success in " << total.count() << "ms : created out.compressed file\n";
     return 0;
 }

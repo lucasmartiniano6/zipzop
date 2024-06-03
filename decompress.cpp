@@ -7,7 +7,7 @@
 // Inverse Burrows–Wheeler Transform
 std::string IBWT(std::string& t){
     std::vector<int> cnt(256), pref(256), rank(t.size());
-    char sentinel = (char)35; // '#'
+    const char sentinel = '#'; // '#'
     for(int i=0;i<t.size();i++) {
         if(t[i] == sentinel) continue;
         rank[i] = cnt[t[i]];
@@ -26,12 +26,12 @@ std::string IBWT(std::string& t){
 
 std::vector<int> common_dict(){
     std::vector<int> d(256);
-    auto block32 = [](auto& v, auto a, auto b){for(int i=a;i<b;i++) v[i]=i;};
-    block32(d, 0, 32);
-    block32(d, 32, 64);
-    block32(d, 64, 96);
-    block32(d, 96, 128);
-    block32(d, 128, 256);
+    auto block32 = [](auto& v, auto a, auto b, auto off){for(int i=a;i<b;i++) v[i]=i-a+off;};
+    block32(d, 0, 32, 96);
+    block32(d, 32, 64, 64);
+    block32(d, 64, 96, 32);
+    block32(d, 96, 128, 0);
+    block32(d, 128, 256, 128);
     return d;
 }
 
@@ -39,7 +39,6 @@ std::vector<int> common_dict(){
 std::string IMTF(std::vector<int>& v){
     auto dict = common_dict();
     std::string ans = "";
-    for(int i=0; i<dict.size(); i++) dict[i]=i;
     for(int rank : v){
         ans += (char)dict[rank];
         // update dict
@@ -60,9 +59,10 @@ struct Node{
     }
 };
 std::vector<Node> tree;
-int root, sentinel = 255, alphabet = 256;
+const int sentinel = 255, alphabet = 256;
+int root;
 
-std::pair<int,Node> dfs(int idx, std::string& ref){
+std::pair<int,Node> dfs(int idx, std::string& ref){ // build the huffman tree from file
     if(ref[idx] == '1'){ // leaf
         std::bitset<8> number(ref.substr(idx+1,8));
         Node leaf(0, tree.size(), (int)number.to_ulong());
@@ -78,17 +78,13 @@ std::pair<int,Node> dfs(int idx, std::string& ref){
 }
 
 int build(std::string& s){
-    // std::cout << s << '\n';
-    // s = "00171819";
     auto p = dfs(0, s);
     root = p.second.idx;
     return p.first+1;
 }
 
-std::pair<int,int> dfs2(int v, int idx, std::string& ref){
-    if(tree[v].left == -1 && tree[v].right == -1){
-        return {tree[v].val, idx};
-    }
+std::pair<int,int> dfs2(int v, int idx, std::string& ref){ // traverse tree to find match
+    if(tree[v].left == -1 && tree[v].right == -1) return {tree[v].val, idx};
 
     if(ref[idx] == '0') return dfs2(tree[v].left, idx+1, ref);
     else return dfs2(tree[v].right, idx+1, ref);
@@ -119,35 +115,43 @@ void write_file(std::string& s, std::string fileName){
     fout.close();
 }
 
-int main(){
+int main(int argc, char* argv[]){
     using std::chrono::high_resolution_clock;
-    using std::chrono::duration_cast;
     using std::chrono::duration;
     using std::chrono::milliseconds;
-    std::cout << "Decompressing file...\n";
-    Skew sa; sa.string_from_file("output_comp.txt");
+    if(argc < 2){
+        std::cout << "Please provide an input file.\n";
+        return 0;
+    }
+    std::cout << "Unzipzoping file...\n";
+    Skew sa; sa.string_from_file(argv[1]);
     std::vector<int> vs = *sa.string; vs.pop_back();
 
+    duration<double, std::milli> total;
     auto t1 = high_resolution_clock::now();
     Huffman hf;
     auto v = hf.decompress(vs); 
     auto t2 = high_resolution_clock::now();
     duration<double, std::milli> ms_double = t2 - t1;    
-    std::cout << "Huffman: " << ms_double.count() << "ms\n";
+    total += ms_double;
+    // std::cout << "Huffman: " << ms_double.count() << "ms\n";
 
     t1 = high_resolution_clock::now();
     auto out_imtf = IMTF(v);
     t2 = high_resolution_clock::now();
     ms_double = t2 - t1;    
-    std::cout << "IMTF: " << ms_double.count() << "ms\n";
+    total += ms_double;
+    // std::cout << "IMTF: " << ms_double.count() << "ms\n";
 
 
     t1 = high_resolution_clock::now();
     auto out_ibwt = IBWT(out_imtf);
     t2 = high_resolution_clock::now();
     ms_double = t2 - t1;    
-    std::cout << "IBWT: " << ms_double.count() << "ms\n";
+    total += ms_double;
+    // std::cout << "IBWT: " << ms_double.count() << "ms\n";
 
 
-    write_file(out_ibwt, "output_decomp.txt");
+    write_file(out_ibwt, "out.txt");
+    std::cout << "Success in " << total.count() << "ms: created out.txt file\n";
 }
