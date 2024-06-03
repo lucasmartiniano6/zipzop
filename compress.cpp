@@ -1,6 +1,7 @@
 #include "suffix.h"
 #include <queue>
 #include <bitset>
+#include <chrono>
 
 // Burrows–Wheeler Transform
 std::string BWT(std::vector<int>& t, std::vector<int>& sa){
@@ -119,7 +120,7 @@ std::string compress(std::vector<int>& v){
 
 };
 
-void write_file(std::string s, std::string fileName){
+void write_file(std::string& s, std::string fileName){
     std::ofstream fout(fileName, std::ios::binary);
     while(s.size() % 8) s+="0";
     for(int i=0; i<s.size(); i+=8){
@@ -134,13 +135,34 @@ void write_file(std::string s, std::string fileName){
 }
 
 int main(){
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::milliseconds;
+    std::cout << "Compressing file...\n"; 
     Skew sa;
     sa.string_from_file("input.txt");
+
+    auto t1 = high_resolution_clock::now();
     sa.build();
     auto out_bwt = BWT(*sa.string, *sa.suffixArray);
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << "SA build + BWT: " << ms_double.count() << "ms\n";
+
+    t1 = high_resolution_clock::now();
     auto out_mtf = MTF(out_bwt);
+    t2 = high_resolution_clock::now();
+    ms_double = t2 - t1;
+    std::cout << "MTF: " << ms_double.count() << "ms\n";
+
+    t1 = high_resolution_clock::now();
     Huffman hf;
     auto out_hf = hf.compress(out_mtf);
+    t2 = high_resolution_clock::now();
+    ms_double = t2 - t1;
+    std::cout << "Huffman: " << ms_double.count() << "ms\n";
+
     write_file(out_hf, "output_comp.txt");
     return 0;
 }

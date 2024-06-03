@@ -2,6 +2,7 @@
 #include <string>
 #include <algorithm>
 #include <bitset>
+#include <chrono>
 
 // Inverse Burrows–Wheeler Transform
 std::string IBWT(std::string& t){
@@ -76,7 +77,7 @@ std::pair<int,Node> dfs(int idx, std::string& ref){
     return {right.first, par};
 }
 
-int build(std::string s){
+int build(std::string& s){
     // std::cout << s << '\n';
     // s = "00171819";
     auto p = dfs(0, s);
@@ -119,11 +120,34 @@ void write_file(std::string& s, std::string fileName){
 }
 
 int main(){
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::milliseconds;
+    std::cout << "Decompressing file...\n";
     Skew sa; sa.string_from_file("output_comp.txt");
     std::vector<int> vs = *sa.string; vs.pop_back();
+
+    auto t1 = high_resolution_clock::now();
     Huffman hf;
     auto v = hf.decompress(vs); 
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms_double = t2 - t1;    
+    std::cout << "Huffman: " << ms_double.count() << "ms\n";
+
+    t1 = high_resolution_clock::now();
     auto out_imtf = IMTF(v);
+    t2 = high_resolution_clock::now();
+    ms_double = t2 - t1;    
+    std::cout << "IMTF: " << ms_double.count() << "ms\n";
+
+
+    t1 = high_resolution_clock::now();
     auto out_ibwt = IBWT(out_imtf);
+    t2 = high_resolution_clock::now();
+    ms_double = t2 - t1;    
+    std::cout << "IBWT: " << ms_double.count() << "ms\n";
+
+
     write_file(out_ibwt, "output_decomp.txt");
 }
