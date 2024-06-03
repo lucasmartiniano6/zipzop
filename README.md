@@ -24,8 +24,8 @@ Suffix Array construction in O(n) with Skew algorithm:
 Step 1) Build suffix array for all i where imod3 != 0. This is done by recursively calling the algorithm for a string of 2/3 the length of the original one.
 Step 2) Build suffix array for all i where imod3 = 0. This is done in linear time by creating pairs of type (S[i], rank[i+1]) and then applying radix sort (obs: S[i] is the i-th character of the original string S). The rank array is obtained from the first step, and tells us the relative order of the suffixes. Note that here since imod3=0, the suffix (i+1) lies in the rule defined by the first step, so we already have its suffix and rank arrays. This step is done in O(N).
 Step 3) Merge the two suffix arrays from the previous steps, also done in O(N). Essentially, we want to compare a suffix i (where imod3=0) with another suffix j (where jmod3!=0), let's separate it in two cases:
-    Case I)  If jmod3=1 : Create pairs of type (S[i], rank[i+1]) and (S[j], rank[j+1]). Note that both suffixes (i+1) and (j+1) lie in the same suffix array (where idx mod3 !=0, created in the first step), so we can compare their ranks directly. Then, we order these pairs in O(N) with radix sort.
-    Case II) If jmod3=2 : Create triples of type (S[i], S[i+1], rank(i+2)) and (S[j], S[j+1], rank[j+2]). Note that both suffixes (i+2) and (j+2) lie in the same suffix array (where idx mod3!=0, created in the first step), so we can compare their ranks directly. Then, we order these pairs in O(N) with radix sort.
+* Case I)  If jmod3=1 : Create pairs of type (S[i], rank[i+1]) and (S[j], rank[j+1]). Note that both suffixes (i+1) and (j+1) lie in the same suffix array (where idx mod3 !=0, created in the first step), so we can compare their ranks directly. Then, we order these pairs in O(N) with radix sort.
+* Case II) If jmod3=2 : Create triples of type (S[i], S[i+1], rank(i+2)) and (S[j], S[j+1], rank[j+2]). Note that both suffixes (i+2) and (j+2) lie in the same suffix array (where idx mod3!=0, created in the first step), so we can compare their ranks directly. Then, we order these pairs in O(N) with radix sort.
 
 The final recursion looks like this: T(n) = T(2/3 * n) + O(n), which by the master theorem resolves to O(n) and is clearly **optimal**.
 
@@ -52,7 +52,7 @@ The ```input.txt``` file is a well-thought and curated text file designed to tes
 ![ratio_size](imgs/ratiopersize.png)
 ![space_size](imgs/spacepersize.png)
 
-Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by the concatenation of 10x ```test_1e5.txt```(which is a list of 100 thousand random sentences). By the nature of its construction, it's a large txt file with a lot of repetitions - perfect for compression. That's why Zipzop compresses it with a 6.7:1 ratio and **85% space saving**. This shows the power of compression when applied to a big file with a lot of repetitions.
+Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by the concatenation of 10x ```test_1e5.txt```(which is a list of 100 thousand random sentences). By the nature of its construction, it's a large txt file with a lot of repetitions - perfect for compression. That's why Zipzop compresses it with a 6.7:1 ratio and **85% space saving**. This shows the power of compression when applied to a big file with a lot of reoccurrences.
 
 Nice TODO:
 -----
