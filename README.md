@@ -56,7 +56,7 @@ Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by t
 
 Nice TODO:
 -----
-    Suffix Array construction with Induced Sorting (SA-IS) *might* be faster in practice.
+* Suffix Array construction with Induced Sorting (SA-IS) *might* be faster in practice (not sure)
 
 Refs:
 -----
