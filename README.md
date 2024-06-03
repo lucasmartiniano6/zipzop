@@ -1,6 +1,8 @@
 # ZipZop
 Zipzop is a **lossless** data compressor for text and images. To prepare the file, it builds the suffix array in O(n) then applies the Burrows-Wheeler Transform followed by the MTF. Furthermore, it uses Huffman coding to encode the data. When applied to the ```input.txt``` file (which is 71 kB), Zipzop achieves a **2.8 : 1** compression rate and **64% space saving**, all in **under 14 milliseconds** of compression runtime (the decompression step can get as fast as **4ms**). It is inspired by bzip2, which is a legacy lossless compressor found in Unix systems.
 
+![compressor](imgs/roadroller.png)
+
 Usage
 -----
 To install Zipzop run:
@@ -27,7 +29,7 @@ Step 3) Merge the two suffix arrays from the previous steps, also done in O(N). 
 
 The final recursion looks like this: T(n) = T(2/3 * n) + O(n), which by the master theorem resolves to O(n) and is clearly **optimal**.
 
-![ben_langmea](screenshot.png)
+![ben_langmea](imgs/sa.png)
 
 Burrows–Wheeler Transform in O(n)
 -----
@@ -45,7 +47,12 @@ Up to this point, we haven't done any compression yet. The BWT and MTF are just 
 
 Results
 -----
-The ```input.txt``` file is a well-thought and curated text file designed to test compression (jk, it's actually just the entire movie script of Shrek). Below there's a figure that plots the compression ratio as the size of the txt file increases.
+The ```input.txt``` file is a well-thought and curated text file designed to test compression (jk, it's actually just the entire movie script of Shrek). For actual testing we generated txt files of sizes 1e2, 1e3, 1e4 and 1e5 filled them with random sentences (check ```make_input.py``` for how), then we analysed the compression ratio and space saving as the size increases. Figures below.
+
+![ratio_size](imgs/ratiopersize.png)
+![space_size](imgs/spacepersize.png)
+
+Note: ```test_1e6.txt``` is a text file with about 1 million words obtained by the concatenation of 10x ```test_1e5.txt```(which is a list of 100 thousand random sentences). By the nature of its construction, it's a large txt file with a lot of repetitions - perfect for compression. That's why Zipzop compresses it with a 6.7:1 ratio and 85% space saving. This shows the power of compression when applied to a big file with a lot of repetitions.
 
 Nice TODO:
 -----
