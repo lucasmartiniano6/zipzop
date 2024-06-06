@@ -41,6 +41,8 @@ Inverse Burrows–Wheeler Transform in O(n)
 -----
 The good thing about the BWT is that it's cheaply invertible. Even better, the only information we need to revert back to the original string is the output string of the BWT. Assume that we use a beta-ranking in the suffix array and consider the first char in each suffix, naturally the characters are sorted and the rank only increases (for the same char) as we traverse the array. The LF mapping guarantees that for a given char the *relative order* of the ranking in the first column is also preserved in the last column. Thus, if we pre-compute the rankings of the BWT string in O(n) we can re-construct the original string greedly from right to left. Starting at 0 (cause we know that the sentinel char is the first suffix in the SA) we can infer that the char C that comes immediatly before the sentinel in the og string is at position 0 in the BWT string, so we append it to our answer (remember that the SA can be interpreted as ordering rotations of a string). Even better, we also know this new char's position in the SA, for that we just need to skip the sentinel char (first one) and all types of chars in the alphabet that come before C, then add the offset of the rank[C] (which we pre-calculated for all chars). So the next position we look at is next_pos = 1+n_prev_chars[C]+rank[C]. To find the next char in the og string, we look again at position 'next_pos' in the BWT string. Then, just repeat the process until you hit the sentinel char again and you end up reversing to your original string in O(n). 
 
+![sa_rank](imgs/saranking.png)
+
 Huffman coding in O(nlogn)
 -----       
 Up to this point, we haven't done any compression yet. The BWT and MTF are just transforming the data around to make it more suitable for encoding later. This is the later! Now that our data is arranged in such a way that similar groups of characters stay together, we apply the Huffman coding to compress the data. It's a legacy **variable length prefix code** that takes advantage of the fact that characters that have a high frequency of occurance in the data should have shorter encodings. Obviously, by the **pigeonhole principle** no lossless compression algorithm can make every data code shorter, some have to get longer (there's no way around that), buttttt... if we make the chars with low frequency have a longer code, we end up with a shorter total encoding overall (hopefully). Note that we also need to store the actual Huffman tree as overhead (so we can decompress the file later), but usually that's not a problem and storing the tree+encodings is better than storing the current file as it is.
@@ -62,7 +64,8 @@ Nice TODO:
 
 Refs:
 -----
-* https://www.cs.jhu.edu/~langmea/resources/lecture_notes/09_suffix_arrays_v2.pdf (picture of sa, ben langmea lectures)
+* https://www.cs.jhu.edu/~langmea/resources/lecture_notes/09_suffix_arrays_v2.pdf (sa pic, ben lagmea)
+* https://www.cs.jhu.edu/~langmea/resources/lecture_notes/bwt_and_fm_index.pdf (sa rank, ben langmea)
 * http://didawiki.cli.di.unipi.it/lib/exe/fetch.php/magistraleinformaticanetworking/ae/ae2010/notesa.pdf
 * https://github.com/Tascate/Suffix-Arrays-in-CPP/blob/master/Skew.cpp (Skew O(n))
 * https://en.wikipedia.org/wiki/Huffman_coding
